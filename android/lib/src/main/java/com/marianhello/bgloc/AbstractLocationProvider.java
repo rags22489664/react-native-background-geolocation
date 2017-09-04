@@ -18,6 +18,7 @@ import android.content.BroadcastReceiver;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.BatteryManager;
+import android.telephony.CellInfo;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.TelephonyManager;
@@ -26,6 +27,8 @@ import com.marianhello.bgloc.data.BackgroundLocation;
 import com.marianhello.cordova.JSONErrorFactory;
 
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * AbstractLocationProvider
@@ -161,9 +164,13 @@ public abstract class AbstractLocationProvider implements LocationProvider {
     @TargetApi(17)
     private void updateSignalStrength(BackgroundLocation location) {
         TelephonyManager telephonyManager = (TelephonyManager)locationService.getSystemService(Context.TELEPHONY_SERVICE);
-        CellInfoGsm cellinfogsm = (CellInfoGsm)telephonyManager.getAllCellInfo().get(0);
-        CellSignalStrengthGsm cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
-        location.setSignalStrength(cellSignalStrengthGsm.getDbm());
+
+        List<CellInfo> infos = telephonyManager.getAllCellInfo();
+        if(infos.size() > 0) {
+            CellInfoGsm cellinfogsm = (CellInfoGsm) infos.get(0);
+            CellSignalStrengthGsm cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
+            location.setSignalStrength(cellSignalStrengthGsm.getDbm());
+        }
         location.setDeviceId(telephonyManager.getDeviceId());
     }
 
