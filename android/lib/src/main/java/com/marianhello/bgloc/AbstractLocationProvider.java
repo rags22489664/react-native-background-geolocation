@@ -84,7 +84,7 @@ public abstract class AbstractLocationProvider implements LocationProvider {
      * @param location
      */
     public void handleLocation (Location location) {
-        locationService.handleLocation(new BackgroundLocation(PROVIDER_ID, location));
+        locationService.handleLocation(updateBackgroundLocation(new BackgroundLocation(PROVIDER_ID, location)));
     }
 
     /**
@@ -94,7 +94,7 @@ public abstract class AbstractLocationProvider implements LocationProvider {
      * @param radius radius of stationary region
      */
     public void handleStationary (Location location, float radius) {
-        locationService.handleStationary(new BackgroundLocation(PROVIDER_ID, location, radius));
+        locationService.handleStationary(updateBackgroundLocation(new BackgroundLocation(PROVIDER_ID, location, radius)));
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class AbstractLocationProvider implements LocationProvider {
      * @param location
      */
     public void handleStationary (Location location) {
-        locationService.handleStationary(new BackgroundLocation(PROVIDER_ID, location));
+        locationService.handleStationary(updateBackgroundLocation(new BackgroundLocation(PROVIDER_ID, location)));
     }
 
     /**
@@ -149,22 +149,33 @@ public abstract class AbstractLocationProvider implements LocationProvider {
         toneGenerator.startTone(tone, duration);
     }
 
-    private int getBatteryLevel() {
+    private void updateBatteryLevel(BackgroundLocation location) {
         Intent batteryIntent = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-        if(level == -1 || scale == -1) {
-            return -1;
-        } else {
-            return  new Float(((float)level / (float)scale) * 100.0f).intValue();
+        if(level != -1 && scale != -1) {
+            location.setBatteryLevel(new Float(((float)level / (float)scale) * 100.0f).intValue());
         }
     }
 
     @TargetApi(17)
-    private int getSignalStrength() {
+    private void updateSignalStrength(BackgroundLocation location) {
         TelephonyManager telephonyManager = (TelephonyManager)locationService.getSystemService(Context.TELEPHONY_SERVICE);
         CellInfoGsm cellinfogsm = (CellInfoGsm)telephonyManager.getAllCellInfo().get(0);
         CellSignalStrengthGsm cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
-        return cellSignalStrengthGsm.getDbm();
+        location.setSignalStrength(cellSignalStrengthGsm.getDbm());
+        location.setDeviceId(telephonyManager.getDeviceId());
+    }
+
+    private void updateDeviceInfo(BackgroundLocation location) {
+        location.setDeviceManufacturer(android.os.Build.MANUFACTURER);
+        location.setDeviceModel(android.os.Build.MODEL);
+    }
+
+    private BackgroundLocation updateBackgroundLocation(BackgroundLocation location) {
+        updateBatteryLevel(location);
+        updateSignalStrength(location);
+        updateDeviceInfo(location);
+        return location;
     }
 }
