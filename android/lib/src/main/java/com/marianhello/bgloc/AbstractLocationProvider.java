@@ -9,12 +9,18 @@ This is a new class
 
 package com.marianhello.bgloc;
 
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.location.Location;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
+import android.os.BatteryManager;
+import android.telephony.CellInfoGsm;
+import android.telephony.CellSignalStrengthGsm;
+import android.telephony.TelephonyManager;
 
 import com.marianhello.bgloc.data.BackgroundLocation;
 import com.marianhello.cordova.JSONErrorFactory;
@@ -141,5 +147,24 @@ public abstract class AbstractLocationProvider implements LocationProvider {
         }
 
         toneGenerator.startTone(tone, duration);
+    }
+
+    private int getBatteryLevel() {
+        Intent batteryIntent = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        if(level == -1 || scale == -1) {
+            return -1;
+        } else {
+            return  new Float(((float)level / (float)scale) * 100.0f).intValue();
+        }
+    }
+
+    @TargetApi(17)
+    private int getSignalStrength() {
+        TelephonyManager telephonyManager = (TelephonyManager)locationService.getSystemService(Context.TELEPHONY_SERVICE);
+        CellInfoGsm cellinfogsm = (CellInfoGsm)telephonyManager.getAllCellInfo().get(0);
+        CellSignalStrengthGsm cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
+        return cellSignalStrengthGsm.getDbm();
     }
 }

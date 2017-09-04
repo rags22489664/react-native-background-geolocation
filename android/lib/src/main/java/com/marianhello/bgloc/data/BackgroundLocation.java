@@ -31,6 +31,11 @@ public class BackgroundLocation implements Parcelable {
     private boolean hasRadius = false;
     private boolean isFromMockProvider = false;
     private boolean isValid = true;
+    private int batteryLevel = -1;
+    private int signalStrength = -1;
+    private String deviceManufacturer;
+    private String deviceModel;
+    private String deviceId;
     private Bundle extras = null;
 
     private static final long TWO_MINUTES_IN_NANOS = 1000000000L * 60 * 2;
@@ -132,6 +137,11 @@ public class BackgroundLocation implements Parcelable {
         hasRadius = in.readInt() != 0;
         isFromMockProvider = in.readInt() != 0;
         isValid = in.readInt() != 0;
+        batteryLevel = in.readInt();
+        signalStrength = in.readInt();
+        deviceManufacturer = in.readString();
+        deviceModel = in.readString();
+        deviceId = in.readString();
         extras = in.readBundle();
     }
 
@@ -162,6 +172,11 @@ public class BackgroundLocation implements Parcelable {
         dest.writeInt(hasRadius ? 1 : 0);
         dest.writeInt(isFromMockProvider ? 1 : 0);
         dest.writeInt(isValid ? 1 : 0);
+        dest.writeInt(batteryLevel);
+        dest.writeInt(signalStrength);
+        dest.writeString(deviceManufacturer);
+        dest.writeString(deviceModel);
+        dest.writeString(deviceId);
         dest.writeBundle(extras);
     }
 
@@ -689,6 +704,11 @@ public class BackgroundLocation implements Parcelable {
         if (hasSpeed) s.append(" vel=").append(speed);
         if (hasBearing) s.append(" bear=").append(bearing);
         if (hasRadius) s.append(" radius=").append(radius);
+        s.append(" batteryLevel=").append(batteryLevel);
+        s.append(" signalStrength=").append(signalStrength);
+        s.append(" deviceManufacturer=").append(deviceManufacturer);
+        s.append(" deviceModel=").append(deviceModel);
+        s.append(" deviceId=").append(deviceId);
         if (isFromMockProvider) s.append(" mock");
         if (extras != null) {
             s.append(" {").append(extras).append('}');
@@ -715,6 +735,11 @@ public class BackgroundLocation implements Parcelable {
         if (hasBearing) json.put("bearing", bearing);
         if (hasRadius) json.put("radius", radius);
         json.put("locationProvider", locationProvider);
+        json.put("batteryLevel", batteryLevel);
+        json.put("signalStrength", signalStrength);
+        json.put("deviceManufacturer", deviceManufacturer);
+        json.put("deviceModel", deviceModel);
+        json.put("deviceId", deviceId);
 
         return json;
   	}
@@ -730,5 +755,45 @@ public class BackgroundLocation implements Parcelable {
         JSONObject json = this.toJSONObject();
         json.put("locationId", locationId);
         return json;
+    }
+
+    public int getBatteryLevel() {
+        return batteryLevel;
+    }
+
+    public void setBatteryLevel(int batteryLevel) {
+        this.batteryLevel = batteryLevel;
+    }
+
+    public int getSignalStrength() {
+        return signalStrength;
+    }
+
+    public void setSignalStrength(int signalStrength) {
+        this.signalStrength = signalStrength;
+    }
+
+    public String getDeviceManufacturer() {
+        return deviceManufacturer;
+    }
+
+    public void setDeviceManufacturer(String deviceManufacturer) {
+        this.deviceManufacturer = deviceManufacturer;
+    }
+
+    public String getDeviceModel() {
+        return deviceModel;
+    }
+
+    public void setDeviceModel(String deviceModel) {
+        this.deviceModel = deviceModel;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 }

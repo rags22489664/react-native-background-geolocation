@@ -50,7 +50,12 @@ public class BatchManager {
                 SQLiteLocationContract.LocationEntry.COLUMN_NAME_HAS_BEARING,
                 SQLiteLocationContract.LocationEntry.COLUMN_NAME_HAS_ALTITUDE,
                 SQLiteLocationContract.LocationEntry.COLUMN_NAME_HAS_RADIUS,
-                SQLiteLocationContract.LocationEntry.COLUMN_NAME_LOCATION_PROVIDER
+                SQLiteLocationContract.LocationEntry.COLUMN_NAME_LOCATION_PROVIDER,
+                SQLiteLocationContract.LocationEntry.COLUMN_NAME_BATTERY_LEVEL,
+                SQLiteLocationContract.LocationEntry.COLUMN_NAME_SIGNAL_STRENGTH,
+                SQLiteLocationContract.LocationEntry.COLUMN_NAME_DEVICE_MANUFACTURER,
+                SQLiteLocationContract.LocationEntry.COLUMN_NAME_DEVICE_MODEL,
+                SQLiteLocationContract.LocationEntry.COLUMN_NAME_DEVICE_ID,
         };
 
         String whereClause = TextUtils.join("", new String[]{
@@ -95,6 +100,11 @@ public class BatchManager {
                 Double latitude = cursor.getDouble(cursor.getColumnIndex(SQLiteLocationContract.LocationEntry.COLUMN_NAME_LATITUDE));
                 Double longitude = cursor.getDouble(cursor.getColumnIndex(SQLiteLocationContract.LocationEntry.COLUMN_NAME_LONGITUDE));
                 Integer locationProvider = cursor.getInt(cursor.getColumnIndex(SQLiteLocationContract.LocationEntry.COLUMN_NAME_LOCATION_PROVIDER));
+                Integer batteryLevel = cursor.getInt(cursor.getColumnIndex(SQLiteLocationContract.LocationEntry.COLUMN_NAME_BATTERY_LEVEL));
+                Integer signalStrength = cursor.getInt(cursor.getColumnIndex(SQLiteLocationContract.LocationEntry.COLUMN_NAME_SIGNAL_STRENGTH));
+                String deviceManufacturer = cursor.getString(cursor.getColumnIndex(SQLiteLocationContract.LocationEntry.COLUMN_NAME_DEVICE_MANUFACTURER));
+                String deviceModel = cursor.getString(cursor.getColumnIndex(SQLiteLocationContract.LocationEntry.COLUMN_NAME_DEVICE_MODEL));
+                String deviceId = cursor.getString(cursor.getColumnIndex(SQLiteLocationContract.LocationEntry.COLUMN_NAME_DEVICE_ID));
 
                 if (provider != null) writer.name("provider").value(provider);
                 if (time != null) writer.name("time").value(time);
@@ -116,6 +126,11 @@ public class BatchManager {
                     writer.name("radius").value(cursor.getFloat(cursor.getColumnIndex(SQLiteLocationContract.LocationEntry.COLUMN_NAME_RADIUS)));
                 }
                 if (locationProvider != null) writer.name("locationProvider").value(locationProvider);
+                if (batteryLevel != null) writer.name("batteryLevel").value(batteryLevel);
+                if (signalStrength != null) writer.name("signalStrength").value(signalStrength);
+                if (deviceManufacturer != null) writer.name("deviceManufacturer").value(deviceManufacturer);
+                if (deviceModel != null) writer.name("deviceModel").value(deviceModel);
+                if (deviceId != null) writer.name("deviceId").value(deviceId);
                 writer.endObject();
             }
             writer.endArray();

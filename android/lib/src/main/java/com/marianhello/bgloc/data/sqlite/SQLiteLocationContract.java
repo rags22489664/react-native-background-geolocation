@@ -28,5 +28,10 @@ public final class SQLiteLocationContract {
         public static final String COLUMN_NAME_LOCATION_PROVIDER = "service_provider";
         public static final String COLUMN_NAME_VALID = "valid";
         public static final String COLUMN_NAME_BATCH_START_MILLIS = "batch_start";
+        public static final String COLUMN_NAME_BATTERY_LEVEL = "battery_level";
+        public static final String COLUMN_NAME_SIGNAL_STRENGTH = "signal_strength";
+        public static final String COLUMN_NAME_DEVICE_MANUFACTURER = "device_manufacturer";
+        public static final String COLUMN_NAME_DEVICE_MODEL = "device_model";
+        public static final String COLUMN_NAME_DEVICE_ID = "device_id";
     }
 }

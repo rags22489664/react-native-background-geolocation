@@ -40,7 +40,12 @@ public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
         LocationEntry.COLUMN_NAME_PROVIDER + TEXT_TYPE + COMMA_SEP +
         LocationEntry.COLUMN_NAME_LOCATION_PROVIDER + INTEGER_TYPE + COMMA_SEP +
         LocationEntry.COLUMN_NAME_VALID + INTEGER_TYPE + COMMA_SEP +
-        LocationEntry.COLUMN_NAME_BATCH_START_MILLIS + INTEGER_TYPE +
+        LocationEntry.COLUMN_NAME_BATCH_START_MILLIS + INTEGER_TYPE + COMMA_SEP +
+        LocationEntry.COLUMN_NAME_BATTERY_LEVEL + INTEGER_TYPE + COMMA_SEP +
+        LocationEntry.COLUMN_NAME_SIGNAL_STRENGTH + INTEGER_TYPE + COMMA_SEP +
+        LocationEntry.COLUMN_NAME_DEVICE_MANUFACTURER + TEXT_TYPE + COMMA_SEP +
+        LocationEntry.COLUMN_NAME_DEVICE_MODEL + TEXT_TYPE + COMMA_SEP +
+        LocationEntry.COLUMN_NAME_DEVICE_ID + TEXT_TYPE +
         " )";
 
     private static final String SQL_CREATE_CONFIG_TABLE =
@@ -157,6 +162,16 @@ public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
                         LocationEntry.COLUMN_NAME_HAS_ALTITUDE + "= 1," +
                         LocationEntry.COLUMN_NAME_HAS_RADIUS + "= 1"
                 );
+                alterSql.add("ALTER TABLE " + LocationEntry.TABLE_NAME +
+                        " ADD COLUMN " + LocationEntry.COLUMN_NAME_BATTERY_LEVEL + INTEGER_TYPE);
+                alterSql.add("ALTER TABLE " + LocationEntry.TABLE_NAME +
+                        " ADD COLUMN " + LocationEntry.COLUMN_NAME_SIGNAL_STRENGTH + INTEGER_TYPE);
+                alterSql.add("ALTER TABLE " + LocationEntry.TABLE_NAME +
+                        " ADD COLUMN " + LocationEntry.COLUMN_NAME_DEVICE_MANUFACTURER + TEXT_TYPE);
+                alterSql.add("ALTER TABLE " + LocationEntry.TABLE_NAME +
+                        " ADD COLUMN " + LocationEntry.COLUMN_NAME_DEVICE_MODEL + TEXT_TYPE);
+                alterSql.add("ALTER TABLE " + LocationEntry.TABLE_NAME +
+                        " ADD COLUMN " + LocationEntry.COLUMN_NAME_DEVICE_ID + TEXT_TYPE);
 
                 break;
             default:
