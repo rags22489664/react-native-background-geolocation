@@ -20,8 +20,11 @@ import android.media.ToneGenerator;
 import android.os.BatteryManager;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoGsm;
+import android.telephony.CellInfoLte;
+import android.telephony.CellInfoWcdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import com.marianhello.bgloc.data.BackgroundLocation;
 import com.marianhello.cordova.JSONErrorFactory;
@@ -161,15 +164,27 @@ public abstract class AbstractLocationProvider implements LocationProvider {
         }
     }
 
-    @TargetApi(17)
+    @TargetApi(18)
     private void updateSignalStrength(BackgroundLocation location) {
         TelephonyManager telephonyManager = (TelephonyManager)locationService.getSystemService(Context.TELEPHONY_SERVICE);
 
         List<CellInfo> infos = telephonyManager.getAllCellInfo();
-        if(infos.size() > 0) {
-            CellInfoGsm cellinfogsm = (CellInfoGsm) infos.get(0);
-            CellSignalStrengthGsm cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
-            location.setSignalStrength(cellSignalStrengthGsm.getDbm());
+        for(CellInfo info: infos) {
+            if(info.isRegistered()) {
+                Integer dbm = null;
+                if(info instanceof CellInfoWcdma) {
+                    dbm = ((CellInfoWcdma) info).getCellSignalStrength().getDbm();
+                } else if(info instanceof CellInfoGsm) {
+                    dbm = ((CellInfoGsm) info).getCellSignalStrength().getDbm();
+                } else if(info instanceof CellInfoLte) {
+                    dbm = ((CellInfoLte) info).getCellSignalStrength().getDbm();
+                }
+
+                if(dbm != null) {
+                    location.setSignalStrength(dbm);
+                    break;
+                }
+            }
         }
         location.setDeviceId(telephonyManager.getDeviceId());
     }
@@ -180,9 +195,13 @@ public abstract class AbstractLocationProvider implements LocationProvider {
     }
 
     private BackgroundLocation updateBackgroundLocation(BackgroundLocation location) {
-        updateBatteryLevel(location);
-        updateSignalStrength(location);
-        updateDeviceInfo(location);
+        try {
+            updateBatteryLevel(location);
+            updateSignalStrength(location);
+            updateDeviceInfo(location);
+        } catch (Exception e) {
+            Log.e("DeviceInfo", "Error fetching device info", e);
+        }
         return location;
     }
 }
