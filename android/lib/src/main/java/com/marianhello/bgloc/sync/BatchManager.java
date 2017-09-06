@@ -82,7 +82,7 @@ public class BatchManager {
                     groupBy,                   // don't group the rows
                     having,                    // don't filter by row groups
                     orderBy,                   // The sort order
-                    String.valueOf(syncThreshold)
+                    String.valueOf(10)
             );
 
             if (cursor.getCount() < syncThreshold) {
