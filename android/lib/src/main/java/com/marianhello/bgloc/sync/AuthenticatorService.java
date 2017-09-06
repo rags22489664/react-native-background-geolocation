@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 public class AuthenticatorService extends Service {
-    public static final String ACCOUNT_NAME = "QikPod Sync";
+    public static final String ACCOUNT_NAME = "dummy";
 
     private Authenticator mAuthenticator;
 
