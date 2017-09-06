@@ -81,7 +81,8 @@ public class BatchManager {
                     whereArgs,                 // The values for the WHERE clause
                     groupBy,                   // don't group the rows
                     having,                    // don't filter by row groups
-                    orderBy                    // The sort order
+                    orderBy,                   // The sort order
+                    String.valueOf(syncThreshold)
             );
 
             if (cursor.getCount() < syncThreshold) {
