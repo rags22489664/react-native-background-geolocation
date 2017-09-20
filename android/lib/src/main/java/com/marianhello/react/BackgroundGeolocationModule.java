@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -16,6 +17,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.facebook.react.bridge.Arguments;
@@ -30,6 +32,15 @@ import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.marianhello.bgloc.Config;
 import com.marianhello.bgloc.LocationService;
 import com.marianhello.bgloc.data.BackgroundLocation;
@@ -55,6 +66,7 @@ public class BackgroundGeolocationModule extends ReactContextBaseJavaModule impl
     public static final String STATIONARY_EVENT = "stationary";
     public static final String ERROR_EVENT = "error";
     private static final Integer MESSENGER_CLIENT_ID = 666;
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     /** Messenger for communicating with the service. */
     private Messenger mService = null;
@@ -315,8 +327,36 @@ public class BackgroundGeolocationModule extends ReactContextBaseJavaModule impl
 
     @ReactMethod
     public void showLocationSettings() {
-        Intent settingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        getActivity().startActivity(settingsIntent);
+        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(getContext())
+                .addApi(LocationServices.API).build();
+        googleApiClient.connect();
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(10000 / 2);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true);
+        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
+                final Status status = locationSettingsResult.getStatus();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        try {
+                            status.startResolutionForResult(getCurrentActivity(), REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException e) {
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        Intent settingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        getActivity().startActivity(settingsIntent);
+                        break;
+                }
+            }
+        });
     }
 
     @ReactMethod
