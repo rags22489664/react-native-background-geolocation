@@ -85,7 +85,7 @@ public class BatchManager {
                     String.valueOf(10)
             );
 
-            if (cursor.getCount() < syncThreshold) {
+            if (cursor.getCount() == 0) {
                 return null;
             }
 
